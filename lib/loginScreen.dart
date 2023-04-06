@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:todolist/landing.dart';
+import 'package:todolist/registerscreen.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -56,7 +57,9 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => RegisterScreen()), (route) => false);
+                  },
                   child: Text(
                     'Create Account',
                     style: TextStyle(
