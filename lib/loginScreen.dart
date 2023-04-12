@@ -1,19 +1,23 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:todolist/landing.dart';
 import 'package:todolist/registerscreen.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
+  @override
+  _LoginScreenState createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 20.0),
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage('assets/background_image.jpg'),
-            fit: BoxFit.cover,
-          ),
-        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -28,6 +32,7 @@ class LoginScreen extends StatelessWidget {
             ),
             SizedBox(height: 40.0),
             TextField(
+              controller: emailController,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
@@ -36,6 +41,7 @@ class LoginScreen extends StatelessWidget {
             ),
             SizedBox(height: 20.0),
             TextField(
+              controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 filled: true,
@@ -52,7 +58,8 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     'Forgot Password?',
                     style: TextStyle(
-                      fontSize: 14.0,
+                      color: Colors.black,
+                      fontSize: 16.0,
                     ),
                   ),
                 ),
@@ -63,7 +70,8 @@ class LoginScreen extends StatelessWidget {
                   child: Text(
                     'Create Account',
                     style: TextStyle(
-                      fontSize: 14.0,
+                      color: Colors.black,
+                      fontSize: 16.0,
                     ),
                   ),
                 ),
@@ -74,12 +82,16 @@ class LoginScreen extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30.0),
-                color: Colors.purple,
               ),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Task()), (route) => false);
+                  FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text)
+                  .then((value) => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Task()), (route) => false))
+                  .onError((error, stackTrace) => print("Error on login"));
                 },
+                style: ElevatedButton.styleFrom(
+                  primary: Color.fromARGB(223, 183, 26, 231),
+                ),
                 child: Text(
                   'Login',
                   style: TextStyle(

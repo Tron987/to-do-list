@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:todolist/loginScreen.dart';
 
 class Menu extends StatefulWidget {
   const Menu({super.key});
@@ -41,6 +43,14 @@ class _MenuState extends State<Menu> {
                 // Handle Evernote item tap
               },
             ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () async{
+                await FirebaseAuth.instance.signOut();
+                Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => LoginScreen()), (route) => false);
+                
+              },),
           ],
         ),
       

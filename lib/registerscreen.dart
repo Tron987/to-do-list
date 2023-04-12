@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:todolist/landing.dart';
+
 
 
 
@@ -17,8 +19,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-final FirebaseAuth _auth = FirebaseAuth.instance;
-final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
 
 
   @override
@@ -87,7 +88,7 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
                   if (value!.isEmpty) {
                     return 'Please enter a password';
                   }
-                  if (value!.length < 6) {
+                  if (value.length < 6) {
                     return 'Password must be at least 6 characters';
                   }
                   return null;
@@ -117,36 +118,28 @@ final FirebaseFirestore _firestore = FirebaseFirestore.instance;
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-  onPressed: () async {
-    if (_formKey.currentState!.validate()) {
-      try {
-        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-          email: _emailController.text,
-          password: _passwordController.text,
-        );
-
-        // Store user data in Firestore
-        await _firestore.collection('users').doc(userCredential.user!.uid).set({
-          'fullName': _fullNameController.text,
-          'email': _emailController.text,
-        });
-
-        // Navigate to home screen
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          '/home',
-          (_) => false,
-        );
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'weak-password') {
-          print('The password provided is too weak.');
-        } else if (e.code == 'email-already-in-use') {
-          print('The account already exists for that email.');
-        }
-      } catch (e) {
-        print(e);
+  onPressed: ()  async{if (_formKey.currentState!.validate()) {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      // Create a new user document in the "users" collection with the user's name and email
+      await FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid).set({
+        'name': _fullNameController.text,
+        'email': _emailController.text,
+      });
+      Navigator.push(context, MaterialPageRoute(builder: (context) => Task()));
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
       }
+    } catch (e) {
+      print(e);
     }
+  }
   },
   child: Text('Register'),
   style: ElevatedButton.styleFrom(

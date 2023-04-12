@@ -1,19 +1,34 @@
-import 'dart:ui';
-
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class AddActivityPage extends StatelessWidget {
+class EditTask extends StatefulWidget {
+  EditTask({Key? key, required this.todo}) : super(key: key);
+  final DocumentSnapshot todo;
+
+  @override
+  _EditTaskState createState() => _EditTaskState();
+}
+
+class _EditTaskState extends State<EditTask> {
   final TextEditingController _taskNameController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _taskNameController.text = widget.todo['taskName'];
+    DateTime time = widget.todo['time'].toDate();
+    _timeController.text = DateFormat('hh:mm a').format(time);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Activity', style: TextStyle(color: Colors.white)),
+        title: Text('Edit Activity', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.red,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
@@ -47,7 +62,14 @@ class AddActivityPage extends StatelessWidget {
                   initialTime: TimeOfDay.now(),
                 );
                 if (timeOfDay != null) {
-                  _timeController.text = timeOfDay.format(context);
+                  DateTime time = DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month,
+                    DateTime.now().day,
+                    timeOfDay.hour,
+                    timeOfDay.minute,
+                  );
+                  _timeController.text = DateFormat('hh:mm a').format(time);
                 }
               },
             ),
@@ -67,15 +89,16 @@ class AddActivityPage extends StatelessWidget {
                       .collection('users')
                       .doc(uid)
                       .collection('todos')
-                      .add({'taskName': taskName, 'time': time})
+                      .doc(widget.todo.id)
+                      .update({'taskName': taskName, 'time': time})
                       .then((value) {
-                    print('Todo added successfully!');
+                    print('Todo edited successfully!');
                     Navigator.pop(context);
                   }).catchError((error) {
-                    print('Failed to add todo: $error');
+                    print('Failed to edit todo: $error');
                   });
                 },
-                child: Text('Add Todo List'),
+                child: Text('Edit Task'),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.purple,
                   textStyle: TextStyle(color: Colors.white),

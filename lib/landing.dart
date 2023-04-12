@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:todolist/addTask.dart';
+import 'package:todolist/editTask.dart';
 import 'package:todolist/menu.dart';
+import 'package:intl/intl.dart';
 
 class Task extends StatefulWidget {
   @override
@@ -61,10 +65,10 @@ class _TaskState extends State<Task> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => AddActivityPage()),
-              (route) => false);
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => AddActivityPage()),
+          );
         },
         backgroundColor: Colors.purple,
         child: Icon(Icons.add),
@@ -80,13 +84,98 @@ class _TaskState extends State<Task> {
 }
 
 class HomeTab extends StatelessWidget {
+  final User? user = FirebaseAuth.instance.currentUser;
+
+  Future<void> deleteDocument(String docId) async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user?.uid)
+        .collection('todos')
+        .doc(docId)
+        .delete();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Text('Home Tab'),
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(user?.uid)
+          .collection('todos')
+          .snapshots(),
+      builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasError) {
+          return Text('Something went wrong');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Text("Loading");
+        }
+
+        return Container(
+          color: Colors.white,
+          child: ListView(
+            children: snapshot.data!.docs.map((DocumentSnapshot document) {
+              Map<String, dynamic> data = document.data()! as Map<String, dynamic>;
+              DateTime time = data['time'].toDate();
+              String formattedTime = DateFormat('hh:mm a').format(time);
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(60),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  color: Colors.purple,
+                  child: ListTile(
+                    leading: Text(
+                      formattedTime,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    title: Text(
+                      data['taskName'],
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.white),
+                          onPressed: () {
+                            Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditTask(todo: document),
+      ),
+    );
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.delete, color: Colors.white),
+                          onPressed: () {
+                            deleteDocument(document.id);
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        );
+      },
     );
   }
 }
+
+
+
 
 class GroupsTab extends StatelessWidget {
   @override
