@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:todolist/loginScreen.dart';
+import 'package:todolist/registerscreen.dart';
 import 'package:todolist/splash.dart';
 
 

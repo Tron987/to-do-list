@@ -41,7 +41,7 @@ class _SplashState extends State<Splash> {
       body: Center(
         child: Hero(
           tag: "logo",
-          child: Image.asset('/assets/twitter.svg'),
+          child: Image.asset('../assets/try.png'),
         ),
       ),
     );
