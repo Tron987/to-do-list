@@ -7,6 +7,8 @@ import 'package:todolist/landing.dart';
 
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -18,6 +20,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
+      bool isloading = false;
 
 
 
@@ -25,28 +28,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        padding: EdgeInsets.all(16.0),
+      body: SingleChildScrollView(
+      child: Container(
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 'Register',
                 style: TextStyle(
                   fontSize: 32.0,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _fullNameController,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                  fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                   hintText: 'Full Name',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -55,34 +59,34 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                  fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                   hintText: 'Email',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'Please enter your email';
                   }
-                  if (!value!.contains('@')) {
+                  if (!value.contains('@')) {
                     return 'Please enter a valid email address';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                  fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                   hintText: 'Password',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -94,15 +98,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextFormField(
                 controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   filled: true,
-                  fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                  fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                   hintText: 'Confirm Password',
-                  border: OutlineInputBorder(),
+                  border: const OutlineInputBorder(),
                 ),
                 validator: (value) {
                   if (value!.isEmpty) {
@@ -114,11 +118,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 32.0),
+              const SizedBox(height: 32.0),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-  onPressed: ()  async{if (_formKey.currentState!.validate()) {
+  onPressed: isloading ? null :()  async{if (_formKey.currentState!.validate()) {
+                        setState(() {
+                      isloading = true;
+                    });
     try {
       UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: _emailController.text,
@@ -139,12 +146,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
     } catch (e) {
       print(e);
     }
+    finally {
+                      setState(() {
+                        isloading = false;
+                      });
+                    }
   }
+  
   },
-  child: Text('Register'),
+  child: isloading ? const CircularProgressIndicator() : const Text('Register'),
   style: ElevatedButton.styleFrom(
     primary: Colors.red,
-    textStyle: TextStyle(color: Colors.white),
+    textStyle: const TextStyle(color: Colors.white),
   ),
 ),
 
@@ -153,6 +166,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
         ),
       ),
+      )
     );
+    
   }
+  
 }

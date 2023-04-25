@@ -28,10 +28,10 @@ class _EditTaskState extends State<EditTask> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit Activity', style: TextStyle(color: Colors.white)),
+        title: const Text('Edit Activity', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.red,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -44,16 +44,16 @@ class _EditTaskState extends State<EditTask> {
               controller: _taskNameController,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                 hintText: 'Task Name',
               ),
             ),
-            SizedBox(height: 16.0),
+            const SizedBox(height: 16.0),
             TextField(
               controller: _timeController,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                 hintText: 'Time',
               ),
               onTap: () async {
@@ -73,7 +73,7 @@ class _EditTaskState extends State<EditTask> {
                 }
               },
             ),
-            SizedBox(height: 32.0),
+            const SizedBox(height: 32.0),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -98,10 +98,10 @@ class _EditTaskState extends State<EditTask> {
                     print('Failed to edit todo: $error');
                   });
                 },
-                child: Text('Edit Task'),
+                child: const Text('Edit Task'),
                 style: ElevatedButton.styleFrom(
                   primary: Colors.purple,
-                  textStyle: TextStyle(color: Colors.white),
+                  textStyle: const TextStyle(color: Colors.white),
                 ),
               ),
             ),

@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:todolist/landing.dart';
+import 'package:todolist/passwordResetScreen.dart';
 import 'package:todolist/registerscreen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -10,19 +10,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  String errorMessage = '';
+   bool isloading = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(
+            const Text(
               'Hello,\nLogin Now',
               style: TextStyle(
                 fontSize: 36.0,
@@ -30,32 +33,36 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontFamily: 'Pacifico',
               ),
             ),
-            SizedBox(height: 40.0),
+            const SizedBox(height: 40.0),
             TextField(
               controller: emailController,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                 hintText: 'Your email',
+                errorText: errorMessage.isNotEmpty ? errorMessage : null,
               ),
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             TextField(
               controller: passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 filled: true,
-                fillColor: Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
+                fillColor: const Color.fromARGB(223, 161, 93, 68).withOpacity(0.5),
                 hintText: 'Password',
+                errorText: errorMessage.isNotEmpty ? errorMessage : null,
               ),
             ),
-            SizedBox(height: 3.0),
+            const SizedBox(height: 3.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 TextButton(
-                  onPressed: () {},
-                  child: Text(
+                  onPressed: () {
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => PasswordReset()), (route) => false);
+                  },
+                  child: const Text(
                     'Forgot Password?',
                     style: TextStyle(
                       color: Colors.black,
@@ -67,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onPressed: () {
                     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => RegisterScreen()), (route) => false);
                   },
-                  child: Text(
+                  child: const Text(
                     'Create Account',
                     style: TextStyle(
                       color: Colors.black,
@@ -77,22 +84,40 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30.0),
               ),
               child: ElevatedButton(
-                onPressed: () {
-                  FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text)
-                  .then((value) => Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Task()), (route) => false))
-                  .onError((error, stackTrace) => print("Error on login"));
+                onPressed: isloading ? null : () async {
+                  setState(() {
+                      isloading = true;
+                    });
+                  try {
+                    UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: emailController.text, password: passwordController.text);
+                    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => Task()), (route) => false);
+                  } on FirebaseAuthException catch (e) {
+                    if (e.code == 'user-not-found') {
+                      setState(() {
+                        errorMessage = 'No user found for that email.';
+                      });
+                    } else if (e.code == 'wrong-password') {
+                      setState(() {
+                        errorMessage = 'Wrong password provided for that user.';
+                      });
+                    }
+                  }finally {
+                      setState(() {
+                        isloading = false;
+                      });
+                    }
                 },
                 style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(223, 183, 26, 231),
+                  primary: const Color.fromARGB(223, 183, 26, 231),
                 ),
-                child: Text(
+                child: isloading ? const CircularProgressIndicator() : const Text(
                   'Login',
                   style: TextStyle(
                     color: Colors.white,
@@ -107,3 +132,6 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+
+
